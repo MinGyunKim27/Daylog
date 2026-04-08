@@ -24,6 +24,11 @@ export function today(): string {
   return format(new Date(), 'yyyy-MM-dd')
 }
 
+export function getThisMonth(): string {
+  const d = new Date()
+  return format(new Date(d.getFullYear(), d.getMonth(), 1), 'yyyy-MM-dd')
+}
+
 export function calcSleepDuration(bedtime: string, wakeTime: string): number {
   const [bh, bm] = bedtime.split(':').map(Number)
   const [wh, wm] = wakeTime.split(':').map(Number)
@@ -34,31 +39,33 @@ export function calcSleepDuration(bedtime: string, wakeTime: string): number {
 }
 
 export function getLast30Days(): string[] {
-  const days: string[] = []
-  for (let i = 29; i >= 0; i--) {
+  return Array.from({ length: 30 }, (_, i) => {
     const d = new Date()
-    d.setDate(d.getDate() - i)
-    days.push(format(d, 'yyyy-MM-dd'))
-  }
-  return days
+    d.setDate(d.getDate() - (29 - i))
+    return format(d, 'yyyy-MM-dd')
+  })
+}
+
+export function getLast90Days(): string[] {
+  return Array.from({ length: 90 }, (_, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() - (89 - i))
+    return format(d, 'yyyy-MM-dd')
+  })
 }
 
 export function getLast7Days(): string[] {
-  const days: string[] = []
-  for (let i = 6; i >= 0; i--) {
+  return Array.from({ length: 7 }, (_, i) => {
     const d = new Date()
-    d.setDate(d.getDate() - i)
-    days.push(format(d, 'yyyy-MM-dd'))
-  }
-  return days
+    d.setDate(d.getDate() - (6 - i))
+    return format(d, 'yyyy-MM-dd')
+  })
 }
 
 export function getLastYear(): string[] {
-  const days: string[] = []
-  for (let i = 364; i >= 0; i--) {
+  return Array.from({ length: 365 }, (_, i) => {
     const d = new Date()
-    d.setDate(d.getDate() - i)
-    days.push(format(d, 'yyyy-MM-dd'))
-  }
-  return days
+    d.setDate(d.getDate() - (364 - i))
+    return format(d, 'yyyy-MM-dd')
+  })
 }

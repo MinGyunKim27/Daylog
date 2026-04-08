@@ -40,6 +40,9 @@ const config: Config = {
           foreground: "var(--destructive-foreground)",
         },
       },
+      fontFamily: {
+        pretendard: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

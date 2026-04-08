@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmd.exe /c \"node --version && npm --version\")",
+      "Read(//usr/**)",
+      "Bash(scoop install:*)",
+      "Bash(npm --version)",
+      "Bash(npx --version)",
+      "Bash(export PATH=\"/c/Users/kmg02/scoop/shims:$PATH\")",
+      "Bash(export PATH=\"/c/Users/kmg02/scoop/apps/nodejs/current:$PATH\")",
+      "Bash(npx create-next-app@14 . --typescript --tailwind --eslint --app --no-src-dir --import-alias \"@/*\" --yes)",
+      "Bash(npx create-next-app@14 daylog-temp --typescript --tailwind --eslint --app --no-src-dir --import-alias \"@/*\" --yes)",
+      "Bash(mv /c/Users/kmg02/Daylog/daylog-temp/* /c/Users/kmg02/Daylog/)",
+      "Bash(mv /c/Users/kmg02/Daylog/daylog-temp/.* /c/Users/kmg02/Daylog/)",
+      "Bash(npm install:*)",
+      "Bash(npx shadcn@latest add button card tabs slider input label select badge --yes)",
+      "Bash(gh auth:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(npm run:*)"
+    ]
+  }
+}

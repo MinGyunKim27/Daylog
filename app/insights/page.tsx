@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Navbar } from '@/components/layout/navbar'
-import { Header } from '@/components/layout/header'
+import { AppShell } from '@/components/layout/app-shell'
 import { InsightCard } from '@/components/insights/insight-card'
 import { computeInsights } from '@/lib/insights'
+import { getLast90Days } from '@/lib/utils'
 import { SleepLog, MoodLog, ExerciseLog, Expense } from '@/types'
 
 export default async function InsightsPage() {
@@ -11,8 +11,7 @@ export default async function InsightsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const last90 = new Date(); last90.setDate(last90.getDate() - 90)
-  const last90Str = last90.toISOString().slice(0, 10)
+  const last90Str = getLast90Days()[0]
 
   const [
     { data: sleepLogs },
@@ -34,23 +33,20 @@ export default async function InsightsPage() {
   )
 
   return (
-    <div className="min-h-screen pb-24">
-      <Header title="인사이트" subtitle="AI가 분석한 나의 패턴" />
-
-      <main className="px-4 space-y-3">
-        <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-4 mb-2">
-          <p className="text-sm text-[hsl(var(--muted-foreground))]">
-            최근 90일 데이터 기준 •{' '}
-            <span className="text-[hsl(var(--primary))]">{insights.length}개의 인사이트</span>
-          </p>
+    <AppShell>
+      <div className="min-h-screen pb-24 md:pb-12">
+        <div className="px-6 py-6 w-full max-w-2xl mx-auto space-y-3">
+          <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-4">
+            <p className="text-sm text-[hsl(var(--muted-foreground))]">
+              최근 90일 데이터 기준 •{' '}
+              <span className="text-[hsl(var(--primary))] font-medium">{insights.length}개의 인사이트</span>
+            </p>
+          </div>
+          {insights.map((insight, i) => (
+            <InsightCard key={i} insight={insight} />
+          ))}
         </div>
-
-        {insights.map((insight, i) => (
-          <InsightCard key={i} insight={insight} />
-        ))}
-      </main>
-
-      <Navbar />
-    </div>
+      </div>
+    </AppShell>
   )
 }

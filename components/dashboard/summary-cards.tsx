@@ -1,6 +1,5 @@
 import { Expense, SleepLog, ExerciseLog, MoodLog, DietLog } from '@/types'
 import { formatKRW } from '@/lib/utils'
-import { Wallet, Moon, Dumbbell, Smile, UtensilsCrossed } from 'lucide-react'
 
 interface Props {
   todayExpenses: Expense[]
@@ -18,60 +17,55 @@ export function SummaryCards({ todayExpenses, todaySleep, todayExercise, todayMo
 
   const cards = [
     {
-      icon: <Wallet size={18} className="text-violet-400" />,
-      label: '오늘 지출',
+      emoji: '💸', label: '오늘 지출', color: '#F87171',
       value: totalExpense > 0 ? formatKRW(totalExpense) : '—',
       sub: todayExpenses.length > 0 ? `${todayExpenses.length}건` : '기록 없음',
       filled: totalExpense > 0,
     },
     {
-      icon: <Moon size={18} className="text-blue-400" />,
-      label: '수면',
+      emoji: '😴', label: '수면', color: '#818CF8',
       value: todaySleep ? `${todaySleep.duration_hours}시간` : '—',
       sub: todaySleep ? `${todaySleep.bedtime.slice(0,5)} ~ ${todaySleep.wake_time.slice(0,5)}` : '기록 없음',
       filled: !!todaySleep,
     },
     {
-      icon: <Dumbbell size={18} className="text-emerald-400" />,
-      label: '운동',
+      emoji: '💪', label: '운동', color: '#34D399',
       value: totalExercise > 0 ? `${totalExercise}분` : '—',
       sub: todayExercise.length > 0 ? todayExercise.map(e => e.type).join(', ') : '기록 없음',
       filled: totalExercise > 0,
     },
     {
-      icon: <Smile size={18} className="text-yellow-400" />,
-      label: '기분',
+      emoji: '😊', label: '기분', color: '#FBBF24',
       value: todayMood ? `${MOOD_EMOJIS[todayMood.score - 1]} ${todayMood.score}점` : '—',
-      sub: todayMood?.note || '메모 없음',
+      sub: todayMood?.note || (todayMood ? '메모 없음' : '기록 없음'),
       filled: !!todayMood,
     },
     {
-      icon: <UtensilsCrossed size={18} className="text-pink-400" />,
-      label: '식단',
+      emoji: '🍚', label: '식단', color: '#FB923C',
       value: todayDiet ? '기록됨' : '—',
       sub: todayDiet
-        ? [todayDiet.breakfast && '아침', todayDiet.lunch && '점심', todayDiet.dinner && '저녁'].filter(Boolean).join(', ') || '내용 없음'
+        ? [todayDiet.breakfast && '아침', todayDiet.lunch && '점심', todayDiet.dinner && '저녁'].filter(Boolean).join(' · ') || '내용 없음'
         : '기록 없음',
       filled: !!todayDiet,
     },
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-      {cards.map(({ icon, label, value, sub, filled }) => (
-        <div
-          key={label}
-          className={`rounded-2xl p-4 border transition-all ${
-            filled
-              ? 'bg-[hsl(var(--card))] border-[hsl(var(--border))]'
-              : 'bg-[hsl(217.2,32.6%,8%)] border-[hsl(217.2,32.6%,15%)] opacity-60'
-          }`}
-        >
-          <div className="flex items-center gap-2 mb-2">
-            {icon}
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      {cards.map(({ emoji, label, value, sub, color, filled }) => (
+        <div key={label} className="rounded-2xl p-4 border transition-all"
+          style={{
+            background: filled ? 'hsl(var(--card))' : 'hsl(217.2 32.6% 8%)',
+            borderColor: filled ? `${color}44` : 'hsl(var(--border))',
+            borderLeftWidth: '3px',
+            borderLeftColor: color,
+            opacity: filled ? 1 : 0.55,
+          }}>
+          <div className="flex items-center gap-1.5 mb-2">
+            <span className="text-base">{emoji}</span>
             <span className="text-xs text-[hsl(var(--muted-foreground))] font-medium">{label}</span>
           </div>
-          <p className="text-base font-bold text-[hsl(var(--foreground))] leading-tight">{value}</p>
+          <p className="text-sm font-bold leading-tight truncate">{value}</p>
           <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1 truncate">{sub}</p>
         </div>
       ))}

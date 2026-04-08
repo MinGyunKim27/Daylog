@@ -20,7 +20,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko" className="dark" suppressHydrationWarning>
-      <body className="antialiased min-h-screen bg-[hsl(222.2,84%,4.9%)]">
+      <head>
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+        <link
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="antialiased min-h-screen bg-[hsl(222.2,84%,4.9%)] font-pretendard">
         {children}
       </body>
     </html>

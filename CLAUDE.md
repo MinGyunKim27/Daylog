@@ -208,3 +208,6 @@ cd daylog
 npx shadcn-ui@latest init
 npm install @supabase/ssr @supabase/supabase-js recharts date-fns
 ```
+
+to-do
+변경 시 기존 -> 변경 후로 변경점 보이기
