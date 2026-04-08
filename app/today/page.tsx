@@ -57,7 +57,6 @@ export default async function TodayPage({ searchParams }: PageProps) {
             todayExercise={todayExerciseList}
             todayMood={todayMood}
             todayDiet={todayDiet}
-            clickable
           />
 
           <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-5">
