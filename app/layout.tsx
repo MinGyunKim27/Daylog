@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { ProgressBar } from "@/components/layout/progress-bar";
 
 export const metadata: Metadata = {
   title: "Daylog — 나의 하루 기록",
@@ -28,6 +29,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased min-h-screen bg-[hsl(222.2,84%,4.9%)] font-pretendard">
+        <ProgressBar />
         {children}
       </body>
     </html>

@@ -45,6 +45,7 @@ create table if not exists diet_logs (
   breakfast text,
   lunch text,
   dinner text,
+  snacks text[] default '{}',
   created_at timestamptz default now()
 );
 

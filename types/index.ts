@@ -44,6 +44,7 @@ export interface DietLog {
   breakfast: string | null
   lunch: string | null
   dinner: string | null
+  snacks: string[] | null
   created_at: string
 }
 

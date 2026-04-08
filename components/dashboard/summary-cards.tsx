@@ -44,7 +44,7 @@ export function SummaryCards({ todayExpenses, todaySleep, todayExercise, todayMo
       emoji: '🍚', label: '식단', color: '#FB923C',
       value: todayDiet ? '기록됨' : '—',
       sub: todayDiet
-        ? [todayDiet.breakfast && '아침', todayDiet.lunch && '점심', todayDiet.dinner && '저녁'].filter(Boolean).join(' · ') || '내용 없음'
+        ? [todayDiet.breakfast && '아침', todayDiet.lunch && '점심', todayDiet.dinner && '저녁', todayDiet.snacks?.length ? `간식 ${todayDiet.snacks.length}개` : null].filter(Boolean).join(' · ') || '내용 없음'
         : '기록 없음',
       filled: !!todayDiet,
     },
