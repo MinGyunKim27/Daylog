@@ -1,4 +1,24 @@
-export type ExpenseCategory = '식비' | '교통' | '쇼핑' | '기타'
+﻿export type ExpenseCategory =
+  | '식비'
+  | '교통'
+  | '쇼핑'
+  | '문화'
+  | '주거'
+  | '의료'
+  | '구독'
+  | '기타'
+
+export interface Profile {
+  id: string
+  email: string | null
+  sex: 'male' | 'female' | null
+  birth_year: number | null
+  height_cm: number | null
+  weight_kg: number | null
+  muscle_kg: number | null
+  activity_level: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | null
+  created_at: string
+}
 
 export interface Expense {
   id: string
@@ -6,6 +26,7 @@ export interface Expense {
   date: string
   category: ExpenseCategory
   amount: number
+  memo: string | null
   created_at: string
 }
 
@@ -24,7 +45,9 @@ export interface ExerciseLog {
   user_id: string
   date: string
   type: string
+  intensity: 'low' | 'medium' | 'high'
   duration_minutes: number
+  calories_burned: number | null
   created_at: string
 }
 
@@ -45,16 +68,9 @@ export interface DietLog {
   lunch: string | null
   dinner: string | null
   snacks: string[] | null
+  calories: number | null
+  photo_url: string | null
   created_at: string
-}
-
-export interface DailySummary {
-  date: string
-  expense?: Expense[]
-  sleep?: SleepLog
-  exercise?: ExerciseLog[]
-  mood?: MoodLog
-  diet?: DietLog
 }
 
 export interface InsightItem {

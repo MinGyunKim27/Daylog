@@ -1,28 +1,53 @@
-'use client'
+﻿'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { calcSleepDuration } from '@/lib/utils'
-import { Loader2, Moon, CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, Loader2, Moon } from 'lucide-react'
 
-interface Props { date: string }
+interface Props {
+  date: string
+}
 
 export function SleepForm({ date }: Props) {
   const [bedtime, setBedtime] = useState('23:00')
   const [wakeTime, setWakeTime] = useState('07:00')
+  const [existingId, setExistingId] = useState<string | null>(null)
+  const [initializing, setInitializing] = useState(true)
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [existingId, setExistingId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
   const supabase = createClient()
 
   useEffect(() => {
+    setInitializing(true)
+
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data } = await supabase
-        .from('sleep_logs').select('*').eq('user_id', user.id).eq('date', date).single()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        setInitializing(false)
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('sleep_logs')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('date', date)
+        .maybeSingle()
+
+      if (error) {
+        setError('수면 기록을 불러오지 못했습니다.')
+        setInitializing(false)
+        return
+      }
+
       if (data) {
         setBedtime(data.bedtime.slice(0, 5))
         setWakeTime(data.wake_time.slice(0, 5))
@@ -32,56 +57,93 @@ export function SleepForm({ date }: Props) {
         setWakeTime('07:00')
         setExistingId(null)
       }
+
+      setInitializing(false)
     }
-    load()
+
+    void load()
   }, [date])
 
   const duration = calcSleepDuration(bedtime, wakeTime)
-  const durationColor = duration >= 8 ? 'text-blue-400' : duration >= 7 ? 'text-green-400' : duration >= 6 ? 'text-yellow-400' : 'text-red-400'
 
-  const handleSave = async () => {
+  async function handleSave() {
     setLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    setSaved(false)
+    setError(null)
 
-    await supabase.from('sleep_logs').upsert({
-      ...(existingId ? { id: existingId } : {}),
-      user_id: user.id, date, bedtime, wake_time: wakeTime, duration_hours: duration,
-    }, { onConflict: 'user_id,date' })
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      setError('로그인 정보가 만료되었습니다. 다시 로그인해 주세요.')
+      setLoading(false)
+      return
+    }
+
+    const { error } = await supabase.from('sleep_logs').upsert(
+      {
+        ...(existingId ? { id: existingId } : {}),
+        user_id: user.id,
+        date,
+        bedtime,
+        wake_time: wakeTime,
+        duration_hours: duration,
+      },
+      { onConflict: 'user_id,date' }
+    )
+
+    if (error) {
+      setError('수면 기록 저장에 실패했습니다.')
+      setLoading(false)
+      return
+    }
 
     setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
     setLoading(false)
+  }
+
+  if (initializing) {
+    return <div className="h-40 bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] animate-pulse" />
   }
 
   return (
     <div className="space-y-6">
+      {error ? <p className="text-sm text-red-400 bg-red-500/10 rounded-lg px-3 py-2">{error}</p> : null}
+      {existingId ? <p className="text-xs text-[#818CF8] bg-[#818CF8]/10 rounded-lg px-3 py-2">기록이 있어서 수정 모드로 열었습니다.</p> : null}
+
       <div className="flex items-center justify-center">
         <div className="text-center bg-[hsl(var(--card))] rounded-2xl px-8 py-5 border border-[hsl(var(--border))]">
           <Moon className="mx-auto mb-1 text-[#818CF8]" size={28} />
-          <p className={`text-4xl font-bold ${durationColor}`}>{duration}시간</p>
-          <p className="text-[hsl(var(--muted-foreground))] text-sm mt-1">수면 시간</p>
-          {existingId && <p className="text-xs text-[#818CF8] mt-1">기록됨 — 수정 중</p>}
+          <p className="text-4xl font-bold text-[#818CF8]">{duration}시간</p>
+          <p className="text-[hsl(var(--muted-foreground))] text-sm mt-1">자동 계산 수면시간</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-[hsl(var(--muted-foreground))]">🌙 취침 시간</Label>
-          <input type="time" value={bedtime} onChange={(e) => setBedtime(e.target.value)}
-            className="w-full h-12 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 text-[hsl(var(--foreground))] text-lg font-semibold focus:outline-none focus:border-[#818CF8]" />
+          <Label className="text-[hsl(var(--muted-foreground))]">취침 시간</Label>
+          <input
+            type="time"
+            value={bedtime}
+            onChange={(event) => setBedtime(event.target.value)}
+            className="w-full h-12 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 text-lg font-semibold"
+          />
         </div>
         <div className="space-y-2">
-          <Label className="text-[hsl(var(--muted-foreground))]">☀️ 기상 시간</Label>
-          <input type="time" value={wakeTime} onChange={(e) => setWakeTime(e.target.value)}
-            className="w-full h-12 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 text-[hsl(var(--foreground))] text-lg font-semibold focus:outline-none focus:border-[#818CF8]" />
+          <Label className="text-[hsl(var(--muted-foreground))]">기상 시간</Label>
+          <input
+            type="time"
+            value={wakeTime}
+            onChange={(event) => setWakeTime(event.target.value)}
+            className="w-full h-12 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 text-lg font-semibold"
+          />
         </div>
       </div>
 
-      <Button onClick={handleSave} disabled={loading}
-        className="w-full h-12 bg-[#818CF8] hover:opacity-90 text-base font-semibold text-white">
+      <Button onClick={() => void handleSave()} disabled={loading} className="w-full h-12 bg-[#818CF8] hover:opacity-90 text-base font-semibold text-white">
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : saved ? <CheckCircle2 className="mr-2 h-4 w-4" /> : null}
-        {saved ? '저장됨!' : existingId ? '수정하기' : '저장하기'}
+        {saved ? '저장 완료' : existingId ? '수면 수정' : '수면 저장'}
       </Button>
     </div>
   )

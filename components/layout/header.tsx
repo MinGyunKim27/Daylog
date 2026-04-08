@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -24,9 +24,7 @@ export function Header({ title, subtitle }: HeaderProps) {
     <header className="flex items-center justify-between px-4 pt-6 pb-4">
       <div>
         <h1 className="text-xl font-bold text-[hsl(var(--foreground))]">{title}</h1>
-        {subtitle && (
-          <p className="text-sm text-[hsl(var(--muted-foreground))] mt-0.5">{subtitle}</p>
-        )}
+        {subtitle ? <p className="text-sm text-[hsl(var(--muted-foreground))] mt-0.5">{subtitle}</p> : null}
       </div>
       <Button
         variant="ghost"

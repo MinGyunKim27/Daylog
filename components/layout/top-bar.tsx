@@ -1,12 +1,13 @@
-'use client'
+﻿'use client'
 
 import { Menu } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
 const PAGE_TITLES: Record<string, { label: string; sub: string }> = {
-  '/dashboard': { label: '대시보드', sub: '나의 하루 요약' },
-  '/log': { label: '기록하기', sub: '하루 기록' },
-  '/insights': { label: '인사이트', sub: 'AI 분석' },
+  '/dashboard': { label: '대시보드', sub: '오늘 요약' },
+  '/log': { label: '기록하기', sub: '지출/수면/운동/기분/식단' },
+  '/insights': { label: '인사이트', sub: '자동 분석' },
+  '/settings': { label: '설정', sub: '신체 프로필' },
 }
 
 interface Props {
@@ -22,13 +23,13 @@ export function TopBar({ onToggle }: Props) {
       <button
         onClick={onToggle}
         className="p-2 rounded-xl text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-all shrink-0"
-        aria-label="메뉴 토글"
+        aria-label="메뉴 열기"
       >
         <Menu size={20} />
       </button>
       <div className="flex items-baseline gap-2">
         <span className="font-bold text-[hsl(var(--foreground))]">{page.label}</span>
-        {page.sub && <span className="text-xs text-[hsl(var(--muted-foreground))] hidden sm:inline">{page.sub}</span>}
+        {page.sub ? <span className="text-xs text-[hsl(var(--muted-foreground))] hidden sm:inline">{page.sub}</span> : null}
       </div>
     </header>
   )

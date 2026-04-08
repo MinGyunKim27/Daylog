@@ -1,23 +1,23 @@
-import type { Metadata, Viewport } from "next";
-import "./globals.css";
-import { ProgressBar } from "@/components/layout/progress-bar";
+﻿import type { Metadata, Viewport } from 'next'
+import './globals.css'
+import { ProgressBar } from '@/components/layout/progress-bar'
 
 export const metadata: Metadata = {
-  title: "Daylog — 나의 하루 기록",
-  description: "지출, 수면, 운동, 기분, 식단을 한 곳에서 트래킹하세요",
-};
+  title: 'Daylog | 개인 생활 데이터 트래커',
+  description: '지출, 수면, 운동, 기분, 식단을 기록하고 패턴을 확인하세요.',
+}
 
 export const viewport: Viewport = {
-  width: "device-width",
+  width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#0f1629",
-};
+  themeColor: '#0b1220',
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="ko" className="dark" suppressHydrationWarning>
@@ -28,10 +28,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased min-h-screen bg-[hsl(222.2,84%,4.9%)] font-pretendard">
+      <body className="antialiased min-h-screen bg-[hsl(var(--background))] font-pretendard">
         <ProgressBar />
         {children}
       </body>
     </html>
-  );
+  )
 }

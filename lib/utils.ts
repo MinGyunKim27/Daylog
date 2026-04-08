@@ -1,6 +1,6 @@
-import { type ClassValue, clsx } from 'clsx'
+﻿import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { format, parseISO } from 'date-fns'
+import { addDays, format, parseISO, startOfMonth, subDays } from 'date-fns'
 import { ko } from 'date-fns/locale'
 
 export function cn(...inputs: ClassValue[]) {
@@ -25,8 +25,7 @@ export function today(): string {
 }
 
 export function getThisMonth(): string {
-  const d = new Date()
-  return format(new Date(d.getFullYear(), d.getMonth(), 1), 'yyyy-MM-dd')
+  return format(startOfMonth(new Date()), 'yyyy-MM-dd')
 }
 
 export function calcSleepDuration(bedtime: string, wakeTime: string): number {
@@ -34,38 +33,37 @@ export function calcSleepDuration(bedtime: string, wakeTime: string): number {
   const [wh, wm] = wakeTime.split(':').map(Number)
   const bedMinutes = bh * 60 + bm
   let wakeMinutes = wh * 60 + wm
-  if (wakeMinutes <= bedMinutes) wakeMinutes += 24 * 60
+
+  if (wakeMinutes <= bedMinutes) {
+    wakeMinutes += 24 * 60
+  }
+
   return Math.round(((wakeMinutes - bedMinutes) / 60) * 100) / 100
 }
 
-export function getLast30Days(): string[] {
-  return Array.from({ length: 30 }, (_, i) => {
-    const d = new Date()
-    d.setDate(d.getDate() - (29 - i))
-    return format(d, 'yyyy-MM-dd')
-  })
-}
-
-export function getLast90Days(): string[] {
-  return Array.from({ length: 90 }, (_, i) => {
-    const d = new Date()
-    d.setDate(d.getDate() - (89 - i))
+function getDays(count: number): string[] {
+  return Array.from({ length: count }, (_, i) => {
+    const d = subDays(new Date(), count - i - 1)
     return format(d, 'yyyy-MM-dd')
   })
 }
 
 export function getLast7Days(): string[] {
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date()
-    d.setDate(d.getDate() - (6 - i))
-    return format(d, 'yyyy-MM-dd')
-  })
+  return getDays(7)
 }
 
-export function getLastYear(): string[] {
-  return Array.from({ length: 365 }, (_, i) => {
-    const d = new Date()
-    d.setDate(d.getDate() - (364 - i))
-    return format(d, 'yyyy-MM-dd')
-  })
+export function getLast30Days(): string[] {
+  return getDays(30)
+}
+
+export function getLast90Days(): string[] {
+  return getDays(90)
+}
+
+export function toInputDate(date: string): string {
+  return format(parseISO(date), 'yyyy-MM-dd')
+}
+
+export function moveDate(date: string, diff: number): string {
+  return format(addDays(parseISO(date), diff), 'yyyy-MM-dd')
 }

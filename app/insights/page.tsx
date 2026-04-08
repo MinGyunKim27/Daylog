@@ -1,24 +1,24 @@
-import { createClient } from '@/lib/supabase/server'
+﻿import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { InsightCard } from '@/components/insights/insight-card'
 import { computeInsights } from '@/lib/insights'
 import { getLast90Days } from '@/lib/utils'
-import { SleepLog, MoodLog, ExerciseLog, Expense } from '@/types'
+import { ExerciseLog, Expense, MoodLog, SleepLog } from '@/types'
 
 export default async function InsightsPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
 
   const last90Str = getLast90Days()[0]
 
-  const [
-    { data: sleepLogs },
-    { data: moodLogs },
-    { data: exerciseLogs },
-    { data: expenses },
-  ] = await Promise.all([
+  const [sleepLogs, moodLogs, exerciseLogs, expenses] = await Promise.all([
     supabase.from('sleep_logs').select('*').eq('user_id', user.id).gte('date', last90Str),
     supabase.from('mood_logs').select('*').eq('user_id', user.id).gte('date', last90Str),
     supabase.from('exercise_logs').select('*').eq('user_id', user.id).gte('date', last90Str),
@@ -26,10 +26,10 @@ export default async function InsightsPage() {
   ])
 
   const insights = computeInsights(
-    (sleepLogs as SleepLog[]) ?? [],
-    (moodLogs as MoodLog[]) ?? [],
-    (exerciseLogs as ExerciseLog[]) ?? [],
-    (expenses as Expense[]) ?? []
+    (sleepLogs.data as SleepLog[]) ?? [],
+    (moodLogs.data as MoodLog[]) ?? [],
+    (exerciseLogs.data as ExerciseLog[]) ?? [],
+    (expenses.data as Expense[]) ?? []
   )
 
   return (
@@ -38,12 +38,11 @@ export default async function InsightsPage() {
         <div className="px-6 py-6 w-full max-w-2xl mx-auto space-y-3">
           <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-4">
             <p className="text-sm text-[hsl(var(--muted-foreground))]">
-              최근 90일 데이터 기준 •{' '}
-              <span className="text-[hsl(var(--primary))] font-medium">{insights.length}개의 인사이트</span>
+              최근 90일 기준으로 <span className="text-[hsl(var(--primary))] font-medium">{insights.length}개의 인사이트</span>를 찾았어요.
             </p>
           </div>
-          {insights.map((insight, i) => (
-            <InsightCard key={i} insight={insight} />
+          {insights.map((insight, index) => (
+            <InsightCard key={`${insight.title}-${index}`} insight={insight} />
           ))}
         </div>
       </div>

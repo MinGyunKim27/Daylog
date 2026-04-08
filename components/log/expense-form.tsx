@@ -1,130 +1,196 @@
-'use client'
+﻿'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ExpenseCategory, Expense } from '@/types'
-import { Loader2, Trash2, Plus } from 'lucide-react'
+import { Expense, ExpenseCategory } from '@/types'
+import { Loader2, Plus, Trash2 } from 'lucide-react'
 import { formatKRW } from '@/lib/utils'
 
-const CATEGORIES: { label: string; value: ExpenseCategory; emoji: string }[] = [
-  { label: '식비', value: '식비', emoji: '🍚' },
-  { label: '교통', value: '교통', emoji: '🚌' },
-  { label: '쇼핑', value: '쇼핑', emoji: '🛍️' },
-  { label: '기타', value: '기타', emoji: '💳' },
+const CATEGORIES: { label: ExpenseCategory; emoji: string }[] = [
+  { label: '식비', emoji: '🍚' },
+  { label: '교통', emoji: '🚌' },
+  { label: '쇼핑', emoji: '🛍️' },
+  { label: '문화', emoji: '🎬' },
+  { label: '주거', emoji: '🏠' },
+  { label: '의료', emoji: '💊' },
+  { label: '구독', emoji: '📱' },
+  { label: '기타', emoji: '📦' },
 ]
 
-interface Props { date: string }
+interface Props {
+  date: string
+}
 
 export function ExpenseForm({ date }: Props) {
   const [category, setCategory] = useState<ExpenseCategory>('식비')
   const [amount, setAmount] = useState('')
+  const [memo, setMemo] = useState('')
+  const [entries, setEntries] = useState<Expense[]>([])
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
-  const [entries, setEntries] = useState<Expense[]>([])
+  const [error, setError] = useState<string | null>(null)
+
   const supabase = createClient()
 
-  const loadEntries = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+  async function loadEntries() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
     if (!user) return
-    const { data } = await supabase
+
+    const { data, error } = await supabase
       .from('expenses')
       .select('*')
       .eq('user_id', user.id)
       .eq('date', date)
       .order('created_at')
+
+    if (error) {
+      setError('지출 내역을 불러오지 못했습니다.')
+      return
+    }
+
     setEntries((data as Expense[]) ?? [])
   }
 
-  useEffect(() => { loadEntries() }, [date])
+  useEffect(() => {
+    void loadEntries()
+  }, [date])
 
-  const handleSave = async () => {
-    if (!amount || Number(amount) <= 0) return
+  async function handleSave() {
+    const parsedAmount = Number(amount)
+
+    if (!parsedAmount || parsedAmount <= 0) {
+      setError('금액을 올바르게 입력해 주세요.')
+      return
+    }
+
     setLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    setError(null)
 
-    await supabase.from('expenses').insert({
-      user_id: user.id, date, category, amount: Number(amount),
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      setError('로그인 정보가 만료되었습니다. 다시 로그인해 주세요.')
+      setLoading(false)
+      return
+    }
+
+    const { error } = await supabase.from('expenses').insert({
+      user_id: user.id,
+      date,
+      category,
+      amount: parsedAmount,
+      memo: memo.trim() || null,
     })
+
+    if (error) {
+      setError('지출 저장에 실패했습니다.')
+      setLoading(false)
+      return
+    }
+
     setAmount('')
+    setMemo('')
     await loadEntries()
     setLoading(false)
   }
 
-  const handleDelete = async (id: string) => {
+  async function handleDelete(id: string) {
     setDeleting(id)
-    await supabase.from('expenses').delete().eq('id', id)
+    setError(null)
+
+    const { error } = await supabase.from('expenses').delete().eq('id', id)
+
+    if (error) {
+      setError('지출 삭제에 실패했습니다.')
+      setDeleting(null)
+      return
+    }
+
     await loadEntries()
     setDeleting(null)
   }
 
-  const total = entries.reduce((s, e) => s + e.amount, 0)
+  const total = entries.reduce((sum, entry) => sum + entry.amount, 0)
 
   return (
     <div className="space-y-5">
-      {/* 기존 내역 */}
-      {entries.length > 0 && (
+      {error ? <p className="text-sm text-red-400 bg-red-500/10 rounded-lg px-3 py-2">{error}</p> : null}
+
+      {entries.length ? (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-[hsl(var(--muted-foreground))]">이날 지출 내역</p>
+            <p className="text-sm text-[hsl(var(--muted-foreground))]">오늘 지출 내역</p>
             <p className="text-sm font-bold text-[#F87171]">{formatKRW(total)}</p>
           </div>
-          {entries.map((e) => (
-            <div key={e.id} className="flex items-center justify-between bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-xl px-4 py-3">
-              <div className="flex items-center gap-2">
-                <span className="text-xs bg-[hsl(var(--muted))] px-2 py-0.5 rounded-md text-[hsl(var(--muted-foreground))]">{e.category}</span>
-                <span className="font-semibold text-[hsl(var(--foreground))]">{e.amount.toLocaleString('ko-KR')}원</span>
+
+          {entries.map((entry) => (
+            <div key={entry.id} className="flex items-center justify-between bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-xl px-4 py-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold truncate">{entry.category} · {entry.amount.toLocaleString('ko-KR')}원</p>
+                <p className="text-xs text-[hsl(var(--muted-foreground))] truncate">{entry.memo || '메모 없음'}</p>
               </div>
               <button
-                onClick={() => handleDelete(e.id)}
-                disabled={deleting === e.id}
+                onClick={() => void handleDelete(entry.id)}
+                disabled={deleting === entry.id}
                 className="text-[hsl(var(--muted-foreground))] hover:text-red-400 transition-colors p-1"
+                aria-label="지출 삭제"
               >
-                {deleting === e.id ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
+                {deleting === entry.id ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
               </button>
             </div>
           ))}
         </div>
-      )}
+      ) : null}
 
-      {/* 새로 추가 */}
       <div>
         <p className="text-sm text-[hsl(var(--muted-foreground))] mb-3">카테고리</p>
         <div className="grid grid-cols-4 gap-2">
-          {CATEGORIES.map(({ label, value, emoji }) => (
-            <button key={value} onClick={() => setCategory(value)}
+          {CATEGORIES.map(({ label, emoji }) => (
+            <button
+              key={label}
+              onClick={() => setCategory(label)}
               className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border transition-all ${
-                category === value
+                category === label
                   ? 'border-[#F87171] bg-[#F87171]/10 text-[#F87171]'
                   : 'border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:border-[#F87171]/50'
-              }`}>
-              <span className="text-xl">{emoji}</span>
+              }`}
+            >
+              <span className="text-lg">{emoji}</span>
               <span className="text-xs font-medium">{label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      <div>
-        <p className="text-sm text-[hsl(var(--muted-foreground))] mb-2">금액 (원)</p>
-        <div className="relative">
-          <Input type="number" placeholder="0" value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="text-xl font-bold pr-8 bg-[hsl(var(--card))] border-[hsl(var(--border))] h-14"
-            inputMode="numeric"
-            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-          />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))]">원</span>
-        </div>
-        {amount && <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">{Number(amount).toLocaleString('ko-KR')}원</p>}
+      <div className="space-y-2">
+        <p className="text-sm text-[hsl(var(--muted-foreground))]">금액</p>
+        <Input
+          type="number"
+          placeholder="0"
+          value={amount}
+          onChange={(event) => setAmount(event.target.value)}
+          className="text-xl font-bold bg-[hsl(var(--card))] border-[hsl(var(--border))] h-12"
+          inputMode="numeric"
+        />
+        <Input
+          type="text"
+          placeholder="메모 (선택)"
+          value={memo}
+          onChange={(event) => setMemo(event.target.value)}
+          className="bg-[hsl(var(--card))] border-[hsl(var(--border))]"
+        />
       </div>
 
-      <Button onClick={handleSave} disabled={!amount || loading}
-        className="w-full h-12 bg-[#F87171] hover:opacity-90 text-base font-semibold text-white">
+      <Button onClick={() => void handleSave()} disabled={loading} className="w-full h-12 bg-[#F87171] hover:opacity-90 text-base font-semibold text-white">
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-        추가하기
+        지출 추가
       </Button>
     </div>
   )
