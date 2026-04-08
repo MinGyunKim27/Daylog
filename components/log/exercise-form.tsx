@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
 import { ExerciseLog, Profile } from '@/types'
 import { calcExerciseCalories } from '@/lib/health'
@@ -29,10 +30,17 @@ interface Props {
   date: string
 }
 
+function clampDuration(value: number) {
+  if (Number.isNaN(value)) return 5
+  return Math.min(180, Math.max(5, value))
+}
+
 export function ExerciseForm({ date }: Props) {
   const [type, setType] = useState<(typeof EXERCISE_TYPES)[number]['label']>('러닝')
   const [intensity, setIntensity] = useState<'low' | 'medium' | 'high'>('medium')
   const [duration, setDuration] = useState(30)
+  const [durationInput, setDurationInput] = useState('30')
+  const [isDurationEditing, setIsDurationEditing] = useState(false)
   const [entries, setEntries] = useState<ExerciseLog[]>([])
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(false)
@@ -68,6 +76,10 @@ export function ExerciseForm({ date }: Props) {
     void loadAll()
   }, [date])
 
+  useEffect(() => {
+    setDurationInput(String(duration))
+  }, [duration])
+
   const estimatedCalories = useMemo(() => {
     return calcExerciseCalories(profile?.weight_kg ?? null, type, intensity, duration)
   }, [profile?.weight_kg, type, intensity, duration])
@@ -75,6 +87,11 @@ export function ExerciseForm({ date }: Props) {
   async function handleSave() {
     setLoading(true)
     setError(null)
+
+    const nextDuration = clampDuration(Number(durationInput))
+    const caloriesToSave = calcExerciseCalories(profile?.weight_kg ?? null, type, intensity, nextDuration)
+    setDuration(nextDuration)
+    setDurationInput(String(nextDuration))
 
     const {
       data: { user },
@@ -91,8 +108,8 @@ export function ExerciseForm({ date }: Props) {
       date,
       type,
       intensity,
-      duration_minutes: duration,
-      calories_burned: estimatedCalories,
+      duration_minutes: nextDuration,
+      calories_burned: caloriesToSave,
     })
 
     if (error) {
@@ -123,6 +140,13 @@ export function ExerciseForm({ date }: Props) {
 
   const totalMinutes = entries.reduce((sum, entry) => sum + entry.duration_minutes, 0)
   const totalCalories = entries.reduce((sum, entry) => sum + (entry.calories_burned ?? 0), 0)
+
+  function commitDurationInput() {
+    const nextDuration = clampDuration(Number(durationInput))
+    setDuration(nextDuration)
+    setDurationInput(String(nextDuration))
+    setIsDurationEditing(false)
+  }
 
   return (
     <div className="space-y-6">
@@ -204,9 +228,58 @@ export function ExerciseForm({ date }: Props) {
       <div>
         <div className="flex items-center justify-between mb-4">
           <p className="text-sm text-[hsl(var(--muted-foreground))]">운동 시간</p>
-          <span className="text-2xl font-bold text-[#34D399]">{duration}분</span>
+          {isDurationEditing ? (
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                inputMode="numeric"
+                min={5}
+                max={180}
+                step={5}
+                value={durationInput}
+                autoFocus
+                onChange={(event) => setDurationInput(event.target.value)}
+                onBlur={commitDurationInput}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.currentTarget.blur()
+                  }
+
+                  if (event.key === 'Escape') {
+                    setDurationInput(String(duration))
+                    setIsDurationEditing(false)
+                  }
+                }}
+                className="h-auto w-16 border-0 bg-transparent px-0 py-0 text-right text-2xl font-bold text-[#34D399] [appearance:textfield] focus-visible:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              />
+              <span className="text-2xl font-bold text-[#34D399]">분</span>
+              <span className="rounded-full bg-[#34D399]/15 px-2 py-1 text-[10px] font-semibold text-[#34D399]">수정 중</span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsDurationEditing(true)}
+              className="text-2xl font-bold text-[#34D399] transition-opacity hover:opacity-80"
+              title="클릭해서 시간 수정"
+            >
+              {duration}분
+            </button>
+          )}
         </div>
-        <Slider value={[duration]} onValueChange={([value]) => setDuration(value)} min={5} max={180} step={5} className="py-2" />
+        <div className="space-y-4">
+          <Slider
+            value={[duration]}
+            onValueChange={([value]) => {
+              setDuration(value)
+              setDurationInput(String(value))
+              setIsDurationEditing(false)
+            }}
+            min={5}
+            max={180}
+            step={5}
+          />
+          <p className="text-xs text-[hsl(var(--muted-foreground))]">오른쪽 시간을 클릭하면 직접 수정할 수 있어요.</p>
+        </div>
       </div>
 
       <div className="rounded-xl border border-[#34D399]/40 bg-[#34D399]/10 px-4 py-3">

@@ -65,8 +65,11 @@ export interface DietLog {
   user_id: string
   date: string
   breakfast: string | null
+  breakfast_calories: number | null
   lunch: string | null
+  lunch_calories: number | null
   dinner: string | null
+  dinner_calories: number | null
   snacks: string[] | null
   calories: number | null
   photo_url: string | null

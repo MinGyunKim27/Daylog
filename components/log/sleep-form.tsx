@@ -127,7 +127,8 @@ export function SleepForm({ date }: Props) {
             type="time"
             value={bedtime}
             onChange={(event) => setBedtime(event.target.value)}
-            className="w-full h-12 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 text-lg font-semibold"
+            style={{ colorScheme: 'dark' }}
+            className="w-full h-12 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 text-lg font-semibold text-white [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-80"
           />
         </div>
         <div className="space-y-2">
@@ -136,7 +137,8 @@ export function SleepForm({ date }: Props) {
             type="time"
             value={wakeTime}
             onChange={(event) => setWakeTime(event.target.value)}
-            className="w-full h-12 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 text-lg font-semibold"
+            style={{ colorScheme: 'dark' }}
+            className="w-full h-12 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 text-lg font-semibold text-white [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-80"
           />
         </div>
       </div>

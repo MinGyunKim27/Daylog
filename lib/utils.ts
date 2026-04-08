@@ -2,6 +2,7 @@
 import { twMerge } from 'tailwind-merge'
 import { addDays, format, parseISO, startOfMonth, subDays } from 'date-fns'
 import { ko } from 'date-fns/locale'
+import { DietLog } from '@/types'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -66,4 +67,18 @@ export function toInputDate(date: string): string {
 
 export function moveDate(date: string, diff: number): string {
   return format(addDays(parseISO(date), diff), 'yyyy-MM-dd')
+}
+
+export function getDietTotalCalories(dietLog: DietLog | null): number {
+  if (!dietLog) return 0
+
+  const breakfastCalories = dietLog.breakfast_calories ?? 0
+  const lunchCalories = dietLog.lunch_calories ?? 0
+  const dinnerCalories = dietLog.dinner_calories ?? 0
+
+  if (breakfastCalories || lunchCalories || dinnerCalories) {
+    return breakfastCalories + lunchCalories + dinnerCalories
+  }
+
+  return dietLog.calories ?? 0
 }

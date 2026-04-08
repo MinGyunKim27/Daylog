@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { DietLog, Profile } from '@/types'
 import { getRecommendedCalories } from '@/lib/health'
+import { getDietTotalCalories } from '@/lib/utils'
 import { CheckCircle2, Loader2, UploadCloud, X } from 'lucide-react'
 
 const MEALS = [
@@ -19,9 +20,9 @@ interface Props {
 
 export function DietForm({ date }: Props) {
   const [meals, setMeals] = useState({ breakfast: '', lunch: '', dinner: '' })
+  const [mealCalories, setMealCalories] = useState({ breakfast: '', lunch: '', dinner: '' })
   const [snacks, setSnacks] = useState<string[]>([])
   const [snackInput, setSnackInput] = useState('')
-  const [calories, setCalories] = useState('')
   const [photoUrl, setPhotoUrl] = useState('')
   const [profile, setProfile] = useState<Profile | null>(null)
   const [existingId, setExistingId] = useState<string | null>(null)
@@ -56,14 +57,18 @@ export function DietForm({ date }: Props) {
       } else if (dietResult.data) {
         const data = dietResult.data as DietLog
         setMeals({ breakfast: data.breakfast ?? '', lunch: data.lunch ?? '', dinner: data.dinner ?? '' })
+        setMealCalories({
+          breakfast: data.breakfast_calories ? String(data.breakfast_calories) : '',
+          lunch: data.lunch_calories ? String(data.lunch_calories) : '',
+          dinner: data.dinner_calories ? String(data.dinner_calories) : '',
+        })
         setSnacks(data.snacks ?? [])
-        setCalories(data.calories ? String(data.calories) : '')
         setPhotoUrl(data.photo_url ?? '')
         setExistingId(data.id)
       } else {
         setMeals({ breakfast: '', lunch: '', dinner: '' })
+        setMealCalories({ breakfast: '', lunch: '', dinner: '' })
         setSnacks([])
-        setCalories('')
         setPhotoUrl('')
         setExistingId(null)
       }
@@ -79,10 +84,18 @@ export function DietForm({ date }: Props) {
   }, [date])
 
   const recommendedCalories = useMemo(() => getRecommendedCalories(profile), [profile])
+  const totalCalories = useMemo(() => {
+    return (
+      Number(mealCalories.breakfast || 0) +
+      Number(mealCalories.lunch || 0) +
+      Number(mealCalories.dinner || 0)
+    )
+  }, [mealCalories.breakfast, mealCalories.dinner, mealCalories.lunch])
+
   const calorieGap = useMemo(() => {
-    if (!recommendedCalories || !calories) return null
-    return recommendedCalories - Number(calories)
-  }, [recommendedCalories, calories])
+    if (!recommendedCalories || !totalCalories) return null
+    return recommendedCalories - totalCalories
+  }, [recommendedCalories, totalCalories])
 
   async function handleImageUpload(file: File) {
     setUploading(true)
@@ -149,10 +162,13 @@ export function DietForm({ date }: Props) {
         user_id: user.id,
         date,
         breakfast: meals.breakfast || null,
+        breakfast_calories: mealCalories.breakfast ? Number(mealCalories.breakfast) : null,
         lunch: meals.lunch || null,
+        lunch_calories: mealCalories.lunch ? Number(mealCalories.lunch) : null,
         dinner: meals.dinner || null,
+        dinner_calories: mealCalories.dinner ? Number(mealCalories.dinner) : null,
         snacks: snacks.length ? snacks : null,
-        calories: calories ? Number(calories) : null,
+        calories: totalCalories || null,
         photo_url: photoUrl || null,
       },
       { onConflict: 'user_id,date' }
@@ -192,27 +208,47 @@ export function DietForm({ date }: Props) {
       )}
 
       {MEALS.map(({ key, label, emoji, placeholder }) => (
-        <div key={key}>
-          <p className="text-sm text-[hsl(var(--muted-foreground))] mb-2">{emoji} {label}</p>
-          <input
-            type="text"
-            value={meals[key]}
-            onChange={(event) => setMeals((prev) => ({ ...prev, [key]: event.target.value }))}
-            placeholder={placeholder}
-            className="w-full h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 text-sm"
-          />
+        <div key={key} className="grid grid-cols-[1fr_132px] gap-3">
+          <div>
+            <p className="text-sm text-[hsl(var(--muted-foreground))] mb-2">{emoji} {label}</p>
+            <input
+              type="text"
+              value={meals[key]}
+              onChange={(event) => setMeals((prev) => ({ ...prev, [key]: event.target.value }))}
+              placeholder={placeholder}
+              className="w-full h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 text-sm"
+            />
+          </div>
+          <div>
+            <p className="text-sm text-[hsl(var(--muted-foreground))] mb-2">{label} kcal</p>
+            <input
+              type="number"
+              value={mealCalories[key]}
+              onChange={(event) => setMealCalories((prev) => ({ ...prev, [key]: event.target.value }))}
+              placeholder="0"
+              className="w-full h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 text-sm"
+            />
+          </div>
         </div>
       ))}
 
-      <div>
-        <p className="text-sm text-[hsl(var(--muted-foreground))] mb-2">총 칼로리 (kcal)</p>
-        <input
-          type="number"
-          value={calories}
-          onChange={(event) => setCalories(event.target.value)}
-          placeholder="예: 1850"
-          className="w-full h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 text-sm"
-        />
+      <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-3">
+        <p className="text-xs text-[hsl(var(--muted-foreground))]">자동 계산 총 칼로리</p>
+        <p className="text-xl font-bold text-[#FB923C]">{getDietTotalCalories({
+          id: '',
+          user_id: '',
+          date,
+          breakfast: meals.breakfast || null,
+          breakfast_calories: mealCalories.breakfast ? Number(mealCalories.breakfast) : null,
+          lunch: meals.lunch || null,
+          lunch_calories: mealCalories.lunch ? Number(mealCalories.lunch) : null,
+          dinner: meals.dinner || null,
+          dinner_calories: mealCalories.dinner ? Number(mealCalories.dinner) : null,
+          snacks,
+          calories: totalCalories || null,
+          photo_url: photoUrl || null,
+          created_at: '',
+        }).toLocaleString('ko-KR')} kcal</p>
       </div>
 
       <div>

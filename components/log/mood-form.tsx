@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
 import { CheckCircle2, Loader2 } from 'lucide-react'
 
@@ -12,8 +13,15 @@ interface Props {
   date: string
 }
 
+function clampScore(value: number) {
+  if (Number.isNaN(value)) return 1
+  return Math.min(10, Math.max(1, value))
+}
+
 export function MoodForm({ date }: Props) {
   const [score, setScore] = useState(5)
+  const [scoreInput, setScoreInput] = useState('5')
+  const [isScoreEditing, setIsScoreEditing] = useState(false)
   const [note, setNote] = useState('')
   const [existingId, setExistingId] = useState<string | null>(null)
   const [initializing, setInitializing] = useState(true)
@@ -51,10 +59,12 @@ export function MoodForm({ date }: Props) {
 
       if (data) {
         setScore(data.score)
+        setScoreInput(String(data.score))
         setNote(data.note ?? '')
         setExistingId(data.id)
       } else {
         setScore(5)
+        setScoreInput('5')
         setNote('')
         setExistingId(null)
       }
@@ -69,6 +79,10 @@ export function MoodForm({ date }: Props) {
     setLoading(true)
     setSaved(false)
     setError(null)
+
+    const nextScore = clampScore(Number(scoreInput))
+    setScore(nextScore)
+    setScoreInput(String(nextScore))
 
     const {
       data: { user },
@@ -85,7 +99,7 @@ export function MoodForm({ date }: Props) {
         ...(existingId ? { id: existingId } : {}),
         user_id: user.id,
         date,
-        score,
+        score: nextScore,
         note: note.trim() || null,
       },
       { onConflict: 'user_id,date' }
@@ -101,6 +115,13 @@ export function MoodForm({ date }: Props) {
     setLoading(false)
   }
 
+  function commitScoreInput() {
+    const nextScore = clampScore(Number(scoreInput))
+    setScore(nextScore)
+    setScoreInput(String(nextScore))
+    setIsScoreEditing(false)
+  }
+
   if (initializing) {
     return <div className="h-44 bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] animate-pulse" />
   }
@@ -112,11 +133,60 @@ export function MoodForm({ date }: Props) {
 
       <div className="text-center bg-[hsl(var(--card))] rounded-2xl px-6 py-6 border border-[hsl(var(--border))]">
         <div className="text-6xl mb-2">{MOOD_EMOJIS[score - 1]}</div>
-        <p className="text-4xl font-bold text-[#FBBF24]">{score}점</p>
+        {isScoreEditing ? (
+          <div className="flex items-center justify-center gap-2">
+            <Input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={10}
+              step={1}
+              value={scoreInput}
+              autoFocus
+              onChange={(event) => setScoreInput(event.target.value)}
+              onBlur={commitScoreInput}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.currentTarget.blur()
+                }
+
+                if (event.key === 'Escape') {
+                  setScoreInput(String(score))
+                  setIsScoreEditing(false)
+                }
+              }}
+              className="h-auto w-16 border-0 bg-transparent px-0 py-0 text-center text-4xl font-bold text-[#FBBF24] [appearance:textfield] focus-visible:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            />
+            <span className="text-4xl font-bold text-[#FBBF24]">점</span>
+            <span className="rounded-full bg-[#FBBF24]/15 px-2 py-1 text-[10px] font-semibold text-[#FBBF24]">수정 중</span>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setIsScoreEditing(true)}
+            className="text-4xl font-bold text-[#FBBF24] transition-opacity hover:opacity-80"
+            title="클릭해서 점수 수정"
+          >
+            {score}점
+          </button>
+        )}
       </div>
 
       <div>
-        <Slider value={[score]} onValueChange={([value]) => setScore(value)} min={1} max={10} step={1} className="py-2" />
+        <div className="space-y-4">
+          <Slider
+            value={[score]}
+            onValueChange={([value]) => {
+              setScore(value)
+              setScoreInput(String(value))
+              setIsScoreEditing(false)
+            }}
+            min={1}
+            max={10}
+            step={1}
+          />
+          <p className="text-xs text-[hsl(var(--muted-foreground))]">점수를 클릭하면 직접 수정할 수 있어요.</p>
+        </div>
         <div className="flex justify-between text-xs text-[hsl(var(--muted-foreground))] mt-1">
           <span>1</span>
           <span>5</span>
