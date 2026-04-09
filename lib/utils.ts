@@ -21,12 +21,19 @@ export function formatDate(date: string | Date): string {
   return format(d, 'M월 d일 (EEE)', { locale: ko })
 }
 
+function nowKST(): Date {
+  // UTC 기준 new Date()를 KST(+9)로 보정
+  const now = new Date()
+  const kstOffset = 9 * 60 * 60 * 1000
+  return new Date(now.getTime() + kstOffset)
+}
+
 export function today(): string {
-  return format(new Date(), 'yyyy-MM-dd')
+  return format(nowKST(), 'yyyy-MM-dd')
 }
 
 export function getThisMonth(): string {
-  return format(startOfMonth(new Date()), 'yyyy-MM-dd')
+  return format(startOfMonth(nowKST()), 'yyyy-MM-dd')
 }
 
 export function calcSleepDuration(bedtime: string, wakeTime: string): number {
