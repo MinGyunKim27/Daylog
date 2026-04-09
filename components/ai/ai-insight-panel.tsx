@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Sparkles, Loader2, ChevronDown } from 'lucide-react'
+import { Sparkles, Loader2 } from 'lucide-react'
 
 interface Props {
   type: string
