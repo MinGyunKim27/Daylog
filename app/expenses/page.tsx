@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { AppShell } from '@/components/layout/app-shell'
 import { ExpenseChart } from '@/components/dashboard/expense-chart'
+import { AiInsightPanel } from '@/components/ai/ai-insight-panel'
 import { Expense } from '@/types'
 import { formatDate, formatKRW, getThisMonth } from '@/lib/utils'
 
@@ -55,6 +56,8 @@ export default async function ExpensesPage() {
             <h2 className="text-sm font-semibold mb-4">이번달 지출 흐름</h2>
             <ExpenseChart expenses={expenses} />
           </div>
+
+          <AiInsightPanel type="expenses" data={expenses} accentColor="#F87171" />
 
           <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5">
             <div className="flex items-center justify-between mb-4">

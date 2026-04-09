@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -14,10 +14,11 @@ const nav = [
 ]
 
 interface Props {
-  onClose: () => void
+  expanded: boolean
+  onClose?: () => void
 }
 
-export function Sidebar({ onClose }: Props) {
+export function Sidebar({ expanded, onClose }: Props) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -29,22 +30,25 @@ export function Sidebar({ onClose }: Props) {
   }
 
   return (
-    <aside className="flex flex-col w-64 h-full border-r border-[hsl(var(--border))] bg-[hsl(217.2,32.6%,7%)] shadow-2xl">
-      <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[hsl(var(--border))]">
-        <div>
-          <p className="text-base font-bold">Daylog</p>
-          <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">개인 생활 데이터 트래커</p>
+    <aside
+      className={cn(
+        'flex flex-col h-full border-r border-[hsl(var(--border))] bg-[hsl(217.2,32.6%,7%)] transition-all duration-300 ease-in-out overflow-hidden',
+        expanded ? 'w-56' : 'w-16'
+      )}
+    >
+      {/* 모바일 닫기 버튼 */}
+      {onClose && (
+        <div className="flex items-center justify-end px-3 py-3 border-b border-[hsl(var(--border))]">
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-all"
+          >
+            <X size={18} />
+          </button>
         </div>
-        <button
-          onClick={onClose}
-          className="p-1.5 rounded-lg text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-all"
-          aria-label="사이드바 닫기"
-        >
-          <X size={18} />
-        </button>
-      </div>
+      )}
 
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex-1 px-2 py-3 space-y-1">
         {nav.map(({ href, label, icon: Icon }) => {
           const active = pathname === href
 
@@ -55,25 +59,31 @@ export function Sidebar({ onClose }: Props) {
               onClick={onClose}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
+                expanded ? 'justify-start' : 'justify-center',
                 active
                   ? 'bg-[hsl(var(--primary)/0.15)] text-[hsl(var(--primary))]'
                   : 'text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--foreground))]'
               )}
+              title={!expanded ? label : undefined}
             >
-              <Icon size={18} strokeWidth={active ? 2.5 : 1.8} />
-              {label}
+              <Icon size={20} strokeWidth={active ? 2.5 : 1.8} className="shrink-0" />
+              {expanded && <span className="truncate">{label}</span>}
             </Link>
           )
         })}
       </nav>
 
-      <div className="px-3 py-4 border-t border-[hsl(var(--border))]">
+      <div className={cn('px-2 py-3 pb-20 md:pb-3 border-t border-[hsl(var(--border))]')}>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-red-400 transition-all"
+          className={cn(
+            'flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-red-400 transition-all',
+            !expanded && 'justify-center'
+          )}
+          title={!expanded ? '로그아웃' : undefined}
         >
-          <LogOut size={18} />
-          로그아웃
+          <LogOut size={20} className="shrink-0" />
+          {expanded && <span>로그아웃</span>}
         </button>
       </div>
     </aside>

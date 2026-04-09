@@ -73,6 +73,9 @@ export interface DietLog {
   snacks: string[] | null
   calories: number | null
   photo_url: string | null
+  breakfast_photo_url: string | null
+  lunch_photo_url: string | null
+  dinner_photo_url: string | null
   created_at: string
 }
 

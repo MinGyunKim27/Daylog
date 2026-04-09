@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { AppShell } from '@/components/layout/app-shell'
 import { SleepChart } from '@/components/dashboard/sleep-chart'
+import { AiInsightPanel } from '@/components/ai/ai-insight-panel'
 import { SleepLog } from '@/types'
 import { formatDate, getLast30Days } from '@/lib/utils'
 
@@ -50,6 +51,8 @@ export default async function SleepPage() {
             <h2 className="text-sm font-semibold mb-4">최근 30일 수면 추이</h2>
             <SleepChart sleepLogs={sleepLogs.slice().reverse()} />
           </div>
+
+          <AiInsightPanel type="sleep" data={sleepLogs} accentColor="#818CF8" />
 
           <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5">
             <h2 className="text-sm font-semibold mb-4">최근 수면 기록</h2>

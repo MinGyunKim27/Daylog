@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { AppShell } from '@/components/layout/app-shell'
 import { DietCalorieChart } from '@/components/details/diet-calorie-chart'
+import { AiInsightPanel } from '@/components/ai/ai-insight-panel'
 import { getRecommendedCalories } from '@/lib/health'
 import { DietLog, Profile } from '@/types'
 import { formatDate, getDietTotalCalories, getLast30Days } from '@/lib/utils'
@@ -50,6 +51,8 @@ export default async function DietPage() {
             <h2 className="text-sm font-semibold mb-4">최근 14일 끼니별 칼로리</h2>
             <DietCalorieChart dietLogs={dietLogs} />
           </div>
+
+          <AiInsightPanel type="diet" data={dietLogs} accentColor="#FB923C" />
 
           <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5">
             <h2 className="text-sm font-semibold mb-4">최근 식단 기록</h2>

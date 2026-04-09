@@ -41,9 +41,13 @@ const EMPTY_STATUS: DayStatus = {
 export function LogContainer({ initialTab }: Props) {
   const params = useSearchParams()
   const queryTab = params.get('tab')
+  const queryDate = params.get('date')
   const defaultTab = (initialTab || queryTab || 'expense') as LogTab
 
-  const [date, setDate] = useState(today())
+  const [date, setDate] = useState(() => {
+    if (queryDate && /^\d{4}-\d{2}-\d{2}$/.test(queryDate) && queryDate <= today()) return queryDate
+    return today()
+  })
   const [activeTab, setActiveTab] = useState<LogTab>(TAB_META[defaultTab] ? defaultTab : 'expense')
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(parseISO(today())))

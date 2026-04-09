@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { format, parseISO } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { DietLog } from '@/types'
@@ -16,6 +17,7 @@ const MEAL_META = [
 ]
 
 export function DietTimeline({ dietLogs }: Props) {
+  const router = useRouter()
   const logsByDate = new Map(dietLogs.map((log) => [log.date, log]))
   const recentDays = getLast7Days().slice(-5).reverse()
 
@@ -28,7 +30,8 @@ export function DietTimeline({ dietLogs }: Props) {
         return (
           <div
             key={date}
-            className="grid grid-cols-[72px_1fr] gap-3 rounded-2xl border p-3 transition-colors"
+            onClick={() => router.push(`/log?date=${date}&tab=diet`)}
+            className="grid grid-cols-[72px_1fr] gap-3 rounded-2xl border p-3 transition-colors cursor-pointer hover:border-[rgba(251,146,60,0.5)]"
             style={{
               background: log
                 ? 'linear-gradient(135deg, rgba(251,146,60,0.12), rgba(15,23,42,0.9))'

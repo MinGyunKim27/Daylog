@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { AppShell } from '@/components/layout/app-shell'
 import { ExerciseHeatmap } from '@/components/dashboard/exercise-heatmap'
+import { AiInsightPanel } from '@/components/ai/ai-insight-panel'
 import { ExerciseLog } from '@/types'
 import { formatDate, getLast90Days } from '@/lib/utils'
 
@@ -58,6 +59,8 @@ export default async function ExercisePage() {
             </div>
             <ExerciseHeatmap exerciseLogs={exerciseLogs.slice().reverse()} />
           </div>
+
+          <AiInsightPanel type="exercise" data={exerciseLogs} accentColor="#34D399" />
 
           <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5">
             <h2 className="text-sm font-semibold mb-4">최근 운동 기록</h2>

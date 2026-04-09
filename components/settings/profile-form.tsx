@@ -125,37 +125,61 @@ export function ProfileForm() {
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <input
-          type="number"
-          placeholder="출생연도 (예: 1994)"
-          value={profile.birth_year ?? ''}
-          onChange={(event) => setProfile((prev) => ({ ...prev, birth_year: event.target.value ? Number(event.target.value) : null }))}
-          className="h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3"
-        />
-        <input
-          type="number"
-          placeholder="키 (cm)"
-          value={profile.height_cm ?? ''}
-          onChange={(event) => setProfile((prev) => ({ ...prev, height_cm: event.target.value ? Number(event.target.value) : null }))}
-          className="h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3"
-        />
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-[hsl(var(--muted-foreground))] px-1">출생연도</span>
+          <div className="relative">
+            <input
+              type="number"
+              placeholder="1994"
+              value={profile.birth_year ?? ''}
+              onChange={(event) => setProfile((prev) => ({ ...prev, birth_year: event.target.value ? Number(event.target.value) : null }))}
+              className="w-full h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 pr-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[hsl(var(--muted-foreground))] pointer-events-none">년</span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-[hsl(var(--muted-foreground))] px-1">키</span>
+          <div className="relative">
+            <input
+              type="number"
+              placeholder="173"
+              value={profile.height_cm ?? ''}
+              onChange={(event) => setProfile((prev) => ({ ...prev, height_cm: event.target.value ? Number(event.target.value) : null }))}
+              className="w-full h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 pr-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[hsl(var(--muted-foreground))] pointer-events-none">cm</span>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <input
-          type="number"
-          placeholder="몸무게 (kg)"
-          value={profile.weight_kg ?? ''}
-          onChange={(event) => setProfile((prev) => ({ ...prev, weight_kg: event.target.value ? Number(event.target.value) : null }))}
-          className="h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3"
-        />
-        <input
-          type="number"
-          placeholder="근육량 (kg, 선택)"
-          value={profile.muscle_kg ?? ''}
-          onChange={(event) => setProfile((prev) => ({ ...prev, muscle_kg: event.target.value ? Number(event.target.value) : null }))}
-          className="h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3"
-        />
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-[hsl(var(--muted-foreground))] px-1">몸무게</span>
+          <div className="relative">
+            <input
+              type="number"
+              placeholder="70"
+              value={profile.weight_kg ?? ''}
+              onChange={(event) => setProfile((prev) => ({ ...prev, weight_kg: event.target.value ? Number(event.target.value) : null }))}
+              className="w-full h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 pr-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[hsl(var(--muted-foreground))] pointer-events-none">kg</span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-[hsl(var(--muted-foreground))] px-1">근육량 <span className="opacity-50">(선택)</span></span>
+          <div className="relative">
+            <input
+              type="number"
+              placeholder="40"
+              value={profile.muscle_kg ?? ''}
+              onChange={(event) => setProfile((prev) => ({ ...prev, muscle_kg: event.target.value ? Number(event.target.value) : null }))}
+              className="w-full h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 pr-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[hsl(var(--muted-foreground))] pointer-events-none">kg</span>
+          </div>
+        </div>
       </div>
 
       <div>
