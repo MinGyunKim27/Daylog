@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { DietLog, Profile } from '@/types'
 import { getRecommendedCalories } from '@/lib/health'
 import { getDietTotalCalories } from '@/lib/utils'
-import { CheckCircle2, ImagePlus, Loader2, Sparkles, X } from 'lucide-react'
+import { CheckCircle2, ChevronDown, ImagePlus, Loader2, Sparkles, X } from 'lucide-react'
 
 const MEALS = [
   { key: 'breakfast' as const, label: '아침', emoji: '🍳', placeholder: '아침 메뉴' },
@@ -23,6 +23,8 @@ interface Props {
 export function DietForm({ date }: Props) {
   const [meals, setMeals] = useState({ breakfast: '', lunch: '', dinner: '' })
   const [mealCalories, setMealCalories] = useState({ breakfast: '', lunch: '', dinner: '' })
+  const [mealReasons, setMealReasons] = useState({ breakfast: '', lunch: '', dinner: '' })
+  const [reasonOpen, setReasonOpen] = useState({ breakfast: false, lunch: false, dinner: false })
   const [mealPhotos, setMealPhotos] = useState({ breakfast: '', lunch: '', dinner: '' })
   const [uploadingMeal, setUploadingMeal] = useState<MealKey | null>(null)
   const [snacks, setSnacks] = useState<string[]>([])
@@ -190,6 +192,11 @@ export function DietForm({ date }: Props) {
         lunch: result.lunch ? String(result.lunch) : prev.lunch,
         dinner: result.dinner ? String(result.dinner) : prev.dinner,
       }))
+      setMealReasons({
+        breakfast: (result as { breakfast_reason?: string | null }).breakfast_reason ?? '',
+        lunch: (result as { lunch_reason?: string | null }).lunch_reason ?? '',
+        dinner: (result as { dinner_reason?: string | null }).dinner_reason ?? '',
+      })
     } catch {
       setError('칼로리 추정 중 오류가 발생했습니다.')
     } finally {
@@ -287,14 +294,32 @@ export function DietForm({ date }: Props) {
               placeholder={placeholder}
               className="h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 text-sm"
             />
-            <input
-              type="number"
-              value={mealCalories[key]}
-              onChange={(event) => setMealCalories((prev) => ({ ...prev, [key]: event.target.value }))}
-              placeholder="0 kcal"
-              className="h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 text-sm"
-            />
+            <div className="flex gap-1">
+              <input
+                type="number"
+                value={mealCalories[key]}
+                onChange={(event) => setMealCalories((prev) => ({ ...prev, [key]: event.target.value }))}
+                placeholder="0 kcal"
+                className="w-full h-11 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              {mealReasons[key] && (
+                <button
+                  type="button"
+                  onClick={() => setReasonOpen((prev) => ({ ...prev, [key]: !prev[key] }))}
+                  className="shrink-0 w-9 h-11 rounded-xl border border-[#FB923C]/40 bg-[#FB923C]/10 text-[#FB923C] flex items-center justify-center transition-colors hover:bg-[#FB923C]/20"
+                  title="AI 추정 근거"
+                >
+                  <ChevronDown size={14} className={`transition-transform ${reasonOpen[key] ? 'rotate-180' : ''}`} />
+                </button>
+              )}
+            </div>
           </div>
+
+          {mealReasons[key] && reasonOpen[key] && (
+            <div className="text-xs text-[#FB923C] bg-[#FB923C]/8 border border-[#FB923C]/20 rounded-lg px-3 py-2">
+              💡 {mealReasons[key]}
+            </div>
+          )}
 
           {mealPhotos[key] ? (
             <div className="relative">

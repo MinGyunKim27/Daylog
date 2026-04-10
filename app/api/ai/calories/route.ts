@@ -11,8 +11,11 @@ interface CaloriesRequest {
 
 interface CaloriesResponse {
   breakfast: number | null
+  breakfast_reason: string | null
   lunch: number | null
+  lunch_reason: string | null
   dinner: number | null
+  dinner_reason: string | null
   snacks: number[]
 }
 
@@ -48,12 +51,22 @@ export async function POST(request: Request) {
         messages: [
           {
             role: 'user',
-            content: `Estimate kcal for each Korean meal below (1 adult portion). Output ONLY JSON, no explanation.
+            content: `You are a Korean nutrition expert. Estimate total kcal for each meal listed below. Be realistic and accurate — do NOT underestimate.
 
+Key references:
+- 순살치킨 1마리 ≈ 1800~2200 kcal (후라이드 기준)
+- 삼겹살 1인분(200g) ≈ 600 kcal
+- 백반(밥+국+반찬) ≈ 700~900 kcal
+- 돈가스 ≈ 700~900 kcal
+- 김볶밥 1인분 ≈ 600~800 kcal
+- Count ALL items mentioned (수량 포함). "두마리", "2마리" = ×2.
+
+Meals:
 ${mealLines}
 
-JSON format: {"breakfast": 650, "lunch": 900, "dinner": 400, "snacks": [250]}
-Rules: integer kcal values. null only if not listed above. snacks = empty array if none.`,
+Output ONLY valid JSON, no explanation.
+Format: {"breakfast": 650, "breakfast_reason": "김볶밥 600 + 떡갈비 2개 220", "lunch": 900, "lunch_reason": "...", "dinner": 1800, "dinner_reason": "순살치킨 1마리 1900 × 2마리", "snacks": [250]}
+Rules: integer kcal. null only if meal not listed. snacks = [] if none. reason = short Korean string explaining the breakdown.`,
           },
         ],
       }),
