@@ -85,3 +85,26 @@ export interface InsightItem {
   text: string
   type: 'positive' | 'neutral' | 'tip'
 }
+
+export type IncomeCategory = '급여' | '부업' | '용돈' | '투자' | '기타'
+
+export interface Income {
+  id: string
+  user_id: string
+  date: string
+  category: IncomeCategory
+  amount: number
+  memo: string | null
+  created_at: string
+}
+
+export interface Recurring {
+  id: string
+  user_id: string
+  type: 'income' | 'expense'
+  title: string
+  amount: number
+  day_of_month: number | null
+  category: string | null
+  created_at: string
+}

@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, PenLine, Lightbulb, Settings } from 'lucide-react'
+import { LayoutDashboard, PenLine, Lightbulb, Settings, Wallet } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const nav = [
   { href: '/dashboard', label: '대시보드', icon: LayoutDashboard },
   { href: '/log', label: '기록', icon: PenLine },
+  { href: '/finance', label: '재무', icon: Wallet },
   { href: '/insights', label: '인사이트', icon: Lightbulb },
   { href: '/settings', label: '설정', icon: Settings },
 ]

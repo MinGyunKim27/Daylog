@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, PenLine, Lightbulb, Settings, LogOut, X } from 'lucide-react'
+import { LayoutDashboard, PenLine, Lightbulb, Settings, LogOut, X, Wallet } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 
 const nav = [
   { href: '/dashboard', label: '대시보드', icon: LayoutDashboard },
   { href: '/log', label: '기록하기', icon: PenLine },
+  { href: '/finance', label: '재무', icon: Wallet },
   { href: '/insights', label: '인사이트', icon: Lightbulb },
   { href: '/settings', label: '설정', icon: Settings },
 ]

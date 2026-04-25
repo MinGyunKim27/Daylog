@@ -11,11 +11,13 @@ import { SleepForm } from './sleep-form'
 import { ExerciseForm } from './exercise-form'
 import { MoodForm } from './mood-form'
 import { DietForm } from './diet-form'
+import { IncomeForm } from './income-form'
 import { cn, formatDate, moveDate, today } from '@/lib/utils'
-import { CalendarDays, ChevronLeft, ChevronRight, Dumbbell, Heart, Moon, Utensils, Wallet } from 'lucide-react'
+import { CalendarDays, ChevronLeft, ChevronRight, Dumbbell, Heart, Moon, TrendingUp, Utensils, Wallet } from 'lucide-react'
 
 const TAB_META = {
   expense: { label: '지출', icon: Wallet, color: '#F87171' },
+  income: { label: '수입', icon: TrendingUp, color: '#4ADE80' },
   sleep: { label: '수면', icon: Moon, color: '#818CF8' },
   exercise: { label: '운동', icon: Dumbbell, color: '#34D399' },
   mood: { label: '기분', icon: Heart, color: '#FBBF24' },
@@ -32,6 +34,7 @@ interface Props {
 
 const EMPTY_STATUS: DayStatus = {
   expense: false,
+  income: false,
   sleep: false,
   exercise: false,
   mood: false,
@@ -108,8 +111,9 @@ export function LogContainer({ initialTab }: Props) {
       const start = format(startOfMonth(visibleMonth), 'yyyy-MM-dd')
       const end = format(endOfMonth(visibleMonth), 'yyyy-MM-dd')
 
-      const [expenseResult, sleepResult, exerciseResult, moodResult, dietResult] = await Promise.all([
+      const [expenseResult, incomeResult, sleepResult, exerciseResult, moodResult, dietResult] = await Promise.all([
         supabase.from('expenses').select('date').eq('user_id', user.id).gte('date', start).lte('date', end),
+        supabase.from('income').select('date').eq('user_id', user.id).gte('date', start).lte('date', end),
         supabase.from('sleep_logs').select('date').eq('user_id', user.id).gte('date', start).lte('date', end),
         supabase.from('exercise_logs').select('date').eq('user_id', user.id).gte('date', start).lte('date', end),
         supabase.from('mood_logs').select('date').eq('user_id', user.id).gte('date', start).lte('date', end),
@@ -127,6 +131,10 @@ export function LogContainer({ initialTab }: Props) {
       ;(expenseResult.data ?? []).forEach(({ date }) => {
         ensureDate(date)
         nextStatus[date].expense = true
+      })
+      ;(incomeResult.data ?? []).forEach(({ date }) => {
+        ensureDate(date)
+        nextStatus[date].income = true
       })
       ;(sleepResult.data ?? []).forEach(({ date }) => {
         ensureDate(date)
@@ -286,7 +294,7 @@ export function LogContainer({ initialTab }: Props) {
         </div>
 
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as LogTab)} className="w-full">
-          <TabsList className="grid grid-cols-5 w-full mb-6 bg-[hsl(var(--card))] h-11">
+          <TabsList className="grid grid-cols-6 w-full mb-6 bg-[hsl(var(--card))] h-11">
             {(Object.entries(TAB_META) as [LogTab, (typeof TAB_META)[LogTab]][]).map(([key, meta]) => (
               <TabsTrigger key={key} value={key} className="flex items-center gap-1 text-xs px-1">
                 <meta.icon size={13} strokeWidth={2} />
@@ -296,6 +304,7 @@ export function LogContainer({ initialTab }: Props) {
           </TabsList>
 
           <TabsContent value="expense"><ExpenseForm date={date} /></TabsContent>
+          <TabsContent value="income"><IncomeForm date={date} /></TabsContent>
           <TabsContent value="sleep"><SleepForm date={date} /></TabsContent>
           <TabsContent value="exercise"><ExerciseForm date={date} /></TabsContent>
           <TabsContent value="mood"><MoodForm date={date} /></TabsContent>
