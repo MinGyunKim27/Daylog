@@ -5,18 +5,19 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Expense, ExpenseCategory } from '@/types'
-import { Loader2, Plus, Trash2 } from 'lucide-react'
+import { Car, Clapperboard, Home, Loader2, Package, Pill, Plus, ShoppingBag, Smartphone, Trash2, UtensilsCrossed } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { formatKRW } from '@/lib/utils'
 
-const CATEGORIES: { label: ExpenseCategory; emoji: string }[] = [
-  { label: '식비', emoji: '🍚' },
-  { label: '교통', emoji: '🚌' },
-  { label: '쇼핑', emoji: '🛍️' },
-  { label: '문화', emoji: '🎬' },
-  { label: '주거', emoji: '🏠' },
-  { label: '의료', emoji: '💊' },
-  { label: '구독', emoji: '📱' },
-  { label: '기타', emoji: '📦' },
+const CATEGORIES: { label: ExpenseCategory; icon: LucideIcon }[] = [
+  { label: '식비', icon: UtensilsCrossed },
+  { label: '교통', icon: Car },
+  { label: '쇼핑', icon: ShoppingBag },
+  { label: '문화', icon: Clapperboard },
+  { label: '주거', icon: Home },
+  { label: '의료', icon: Pill },
+  { label: '구독', icon: Smartphone },
+  { label: '기타', icon: Package },
 ]
 
 interface Props {
@@ -152,7 +153,7 @@ export function ExpenseForm({ date }: Props) {
       <div>
         <p className="text-sm text-[hsl(var(--muted-foreground))] mb-3">카테고리</p>
         <div className="grid grid-cols-4 gap-2">
-          {CATEGORIES.map(({ label, emoji }) => (
+          {CATEGORIES.map(({ label, icon: Icon }) => (
             <button
               key={label}
               onClick={() => setCategory(label)}
@@ -162,7 +163,7 @@ export function ExpenseForm({ date }: Props) {
                   : 'border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:border-[#F87171]/50'
               }`}
             >
-              <span className="text-lg">{emoji}</span>
+              <Icon size={18} strokeWidth={1.8} />
               <span className="text-xs font-medium">{label}</span>
             </button>
           ))}

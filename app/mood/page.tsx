@@ -3,14 +3,15 @@ import { createClient } from '@/lib/supabase/server'
 import { AppShell } from '@/components/layout/app-shell'
 import { MoodChart } from '@/components/dashboard/mood-chart'
 import { AiInsightPanel } from '@/components/ai/ai-insight-panel'
+import { MoodFace } from '@/components/ui/mood-face'
 import { MoodLog } from '@/types'
 import { formatDate, getLast30Days } from '@/lib/utils'
 
-function moodMeta(score: number): { color: string; bg: string; emoji: string } {
-  if (score >= 9) return { color: '#818CF8', bg: 'rgba(129,140,248,0.12)', emoji: '🤩' }
-  if (score >= 7) return { color: '#34D399', bg: 'rgba(52,211,153,0.12)', emoji: '😊' }
-  if (score >= 4) return { color: '#FBBF24', bg: 'rgba(251,191,36,0.12)', emoji: '😐' }
-  return { color: '#F87171', bg: 'rgba(248,113,113,0.12)', emoji: '😞' }
+function moodMeta(score: number): { color: string; bg: string } {
+  if (score >= 9) return { color: '#818CF8', bg: 'rgba(129,140,248,0.12)' }
+  if (score >= 7) return { color: '#34D399', bg: 'rgba(52,211,153,0.12)' }
+  if (score >= 4) return { color: '#FBBF24', bg: 'rgba(251,191,36,0.12)' }
+  return { color: '#F87171', bg: 'rgba(248,113,113,0.12)' }
 }
 
 export default async function MoodPage() {
@@ -110,7 +111,7 @@ export default async function MoodPage() {
                       className="flex items-center gap-3 rounded-xl px-3 py-3 border"
                       style={{ borderColor: `${meta.color}30`, backgroundColor: meta.bg }}
                     >
-                      <span className="text-xl shrink-0">{meta.emoji}</span>
+                      <MoodFace score={log.score} size={36} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium">{formatDate(log.date)}</p>
                         {log.note ? <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 truncate">{log.note}</p> : null}

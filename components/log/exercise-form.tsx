@@ -7,18 +7,19 @@ import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
 import { ExerciseLog, Profile } from '@/types'
 import { calcExerciseCalories } from '@/lib/health'
-import { Loader2, Plus, Trash2 } from 'lucide-react'
+import { Activity, Bike, Dumbbell, Flame, Footprints, Loader2, Plus, Target, Trash2, Waves, Wind } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
-const EXERCISE_TYPES = [
-  { label: '러닝', emoji: '🏃' },
-  { label: '걷기', emoji: '🚶' },
-  { label: '웨이트', emoji: '🏋️' },
-  { label: '수영', emoji: '🏊' },
-  { label: '자전거', emoji: '🚴' },
-  { label: '필라테스', emoji: '🧘' },
-  { label: '축구', emoji: '⚽' },
-  { label: '기타', emoji: '🏅' },
-] as const
+const EXERCISE_TYPES: { label: string; icon: LucideIcon }[] = [
+  { label: '러닝', icon: Activity },
+  { label: '걷기', icon: Footprints },
+  { label: '웨이트', icon: Dumbbell },
+  { label: '수영', icon: Waves },
+  { label: '자전거', icon: Bike },
+  { label: '필라테스', icon: Wind },
+  { label: '축구', icon: Target },
+  { label: '기타', icon: Flame },
+]
 
 const INTENSITY_OPTIONS: { value: 'low' | 'medium' | 'high'; label: string }[] = [
   { value: 'low', label: '낮음' },
@@ -189,7 +190,7 @@ export function ExerciseForm({ date }: Props) {
       <div>
         <p className="text-sm text-[hsl(var(--muted-foreground))] mb-3">운동 종류</p>
         <div className="grid grid-cols-4 gap-2">
-          {EXERCISE_TYPES.map(({ label, emoji }) => (
+          {EXERCISE_TYPES.map(({ label, icon: Icon }) => (
             <button
               key={label}
               onClick={() => setType(label)}
@@ -199,7 +200,7 @@ export function ExerciseForm({ date }: Props) {
                   : 'border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:border-[#34D399]/50'
               }`}
             >
-              <span className="text-lg">{emoji}</span>
+              <Icon size={18} strokeWidth={1.8} />
               <span className="text-xs font-medium">{label}</span>
             </button>
           ))}

@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { CheckCircle2, Circle } from 'lucide-react'
+import { CheckCircle2, Circle, Dumbbell, Heart, Moon, Utensils, Wallet } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
 interface Props {
   hasExpense: boolean
@@ -9,12 +10,12 @@ interface Props {
   hasDiet: boolean
 }
 
-const items = [
-  { key: 'hasExpense' as const, label: '지출', emoji: '💸', color: '#F87171' },
-  { key: 'hasSleep' as const, label: '수면', emoji: '😴', color: '#818CF8' },
-  { key: 'hasExercise' as const, label: '운동', emoji: '💪', color: '#34D399' },
-  { key: 'hasMood' as const, label: '기분', emoji: '😊', color: '#FBBF24' },
-  { key: 'hasDiet' as const, label: '식단', emoji: '🍚', color: '#FB923C' },
+const items: { key: keyof Props; label: string; icon: LucideIcon; color: string }[] = [
+  { key: 'hasExpense', label: '지출', icon: Wallet, color: '#F87171' },
+  { key: 'hasSleep', label: '수면', icon: Moon, color: '#818CF8' },
+  { key: 'hasExercise', label: '운동', icon: Dumbbell, color: '#34D399' },
+  { key: 'hasMood', label: '기분', icon: Heart, color: '#FBBF24' },
+  { key: 'hasDiet', label: '식단', icon: Utensils, color: '#FB923C' },
 ]
 
 export function TodayChecklist(props: Props) {
@@ -37,7 +38,7 @@ export function TodayChecklist(props: Props) {
       </div>
 
       <div className="flex gap-2">
-        {items.map(({ key, label, emoji, color }) => {
+        {items.map(({ key, label, icon: Icon, color }) => {
           const checked = props[key]
 
           return (
@@ -50,7 +51,7 @@ export function TodayChecklist(props: Props) {
                 opacity: checked ? 1 : 0.55,
               }}
             >
-              <span className="text-base shrink-0">{emoji}</span>
+              <Icon size={14} strokeWidth={1.8} style={{ color: checked ? color : 'hsl(var(--muted-foreground))' }} className="shrink-0" />
               <span className="text-xs font-medium truncate text-[hsl(var(--foreground))]">{label}</span>
               <span className="ml-auto shrink-0">
                 {checked ? <CheckCircle2 size={13} style={{ color }} /> : <Circle size={13} className="text-[hsl(var(--muted-foreground))]" />}

@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
 import { CheckCircle2, Loader2 } from 'lucide-react'
-
-const MOOD_EMOJIS = ['😫', '😞', '🙁', '😕', '😐', '🙂', '😊', '😁', '🤩', '🥳']
+import { MoodFace } from '@/components/ui/mood-face'
 
 interface Props {
   date: string
@@ -132,7 +131,7 @@ export function MoodForm({ date }: Props) {
       {existingId ? <p className="text-xs text-[#FBBF24] bg-[#FBBF24]/10 rounded-lg px-3 py-2">기록이 있어서 수정 모드로 열었습니다.</p> : null}
 
       <div className="text-center bg-[hsl(var(--card))] rounded-2xl px-6 py-6 border border-[hsl(var(--border))]">
-        <div className="text-6xl mb-2">{MOOD_EMOJIS[score - 1]}</div>
+        <div className="flex justify-center mb-2"><MoodFace score={score} size={80} /></div>
         {isScoreEditing ? (
           <div className="flex items-center justify-center gap-2">
             <Input

@@ -12,14 +12,14 @@ import { ExerciseForm } from './exercise-form'
 import { MoodForm } from './mood-form'
 import { DietForm } from './diet-form'
 import { cn, formatDate, moveDate, today } from '@/lib/utils'
-import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CalendarDays, ChevronLeft, ChevronRight, Dumbbell, Heart, Moon, Utensils, Wallet } from 'lucide-react'
 
 const TAB_META = {
-  expense: { label: '지출', emoji: '💸', color: '#F87171' },
-  sleep: { label: '수면', emoji: '😴', color: '#818CF8' },
-  exercise: { label: '운동', emoji: '💪', color: '#34D399' },
-  mood: { label: '기분', emoji: '😊', color: '#FBBF24' },
-  diet: { label: '식단', emoji: '🍚', color: '#FB923C' },
+  expense: { label: '지출', icon: Wallet, color: '#F87171' },
+  sleep: { label: '수면', icon: Moon, color: '#818CF8' },
+  exercise: { label: '운동', icon: Dumbbell, color: '#34D399' },
+  mood: { label: '기분', icon: Heart, color: '#FBBF24' },
+  diet: { label: '식단', icon: Utensils, color: '#FB923C' },
 } as const
 
 type LogTab = keyof typeof TAB_META
@@ -279,18 +279,20 @@ export function LogContainer({ initialTab }: Props) {
 
         <div className="mb-4 rounded-2xl border p-4" style={{ borderColor: `${currentMeta.color}55`, background: `${currentMeta.color}12` }}>
           <p className="text-sm text-[hsl(var(--muted-foreground))]">현재 기록 중</p>
-          <p className="text-lg font-bold" style={{ color: currentMeta.color }}>
-            {currentMeta.emoji} {currentMeta.label}
+          <p className="text-lg font-bold flex items-center gap-2" style={{ color: currentMeta.color }}>
+            <currentMeta.icon size={18} strokeWidth={2} />
+            {currentMeta.label}
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as LogTab)} className="w-full">
           <TabsList className="grid grid-cols-5 w-full mb-6 bg-[hsl(var(--card))] h-11">
-            <TabsTrigger value="expense" className="text-xs px-1">💸 지출</TabsTrigger>
-            <TabsTrigger value="sleep" className="text-xs px-1">😴 수면</TabsTrigger>
-            <TabsTrigger value="exercise" className="text-xs px-1">💪 운동</TabsTrigger>
-            <TabsTrigger value="mood" className="text-xs px-1">😊 기분</TabsTrigger>
-            <TabsTrigger value="diet" className="text-xs px-1">🍚 식단</TabsTrigger>
+            {(Object.entries(TAB_META) as [LogTab, (typeof TAB_META)[LogTab]][]).map(([key, meta]) => (
+              <TabsTrigger key={key} value={key} className="flex items-center gap-1 text-xs px-1">
+                <meta.icon size={13} strokeWidth={2} />
+                <span className="hidden sm:inline">{meta.label}</span>
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           <TabsContent value="expense"><ExpenseForm date={date} /></TabsContent>
@@ -303,7 +305,7 @@ export function LogContainer({ initialTab }: Props) {
 
       <div className="hidden lg:flex flex-col gap-4">
         <div className="bg-[hsl(var(--card))] rounded-2xl border border-[hsl(var(--border))] p-5 sticky top-6">
-          <div className="text-3xl mb-3">{currentMeta.emoji}</div>
+          <div className="mb-3"><currentMeta.icon size={28} strokeWidth={1.5} style={{ color: currentMeta.color }} /></div>
           <h3 className="text-sm font-semibold mb-1.5">{currentMeta.label} 입력 중</h3>
           <p className="text-sm text-[hsl(var(--muted-foreground))] leading-relaxed">
             탭을 바꾸면 즉시 다른 항목을 기록할 수 있습니다. 오늘 기준으로 3분 안에 전체 입력이 가능하도록 구성했습니다.

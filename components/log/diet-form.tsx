@@ -6,12 +6,13 @@ import { Button } from '@/components/ui/button'
 import { DietLog, Profile } from '@/types'
 import { getRecommendedCalories } from '@/lib/health'
 import { getDietTotalCalories } from '@/lib/utils'
-import { CheckCircle2, ChevronDown, ImagePlus, Loader2, Sparkles, X } from 'lucide-react'
+import { CheckCircle2, ChevronDown, ImagePlus, Loader2, Moon, Sparkles, Sun, Sunrise, X } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
-const MEALS = [
-  { key: 'breakfast' as const, label: '아침', emoji: '🍳', placeholder: '아침 메뉴' },
-  { key: 'lunch' as const, label: '점심', emoji: '🍱', placeholder: '점심 메뉴' },
-  { key: 'dinner' as const, label: '저녁', emoji: '🍽️', placeholder: '저녁 메뉴' },
+const MEALS: { key: 'breakfast' | 'lunch' | 'dinner'; label: string; icon: LucideIcon; placeholder: string }[] = [
+  { key: 'breakfast', label: '아침', icon: Sunrise, placeholder: '아침 메뉴' },
+  { key: 'lunch', label: '점심', icon: Sun, placeholder: '점심 메뉴' },
+  { key: 'dinner', label: '저녁', icon: Moon, placeholder: '저녁 메뉴' },
 ]
 
 type MealKey = 'breakfast' | 'lunch' | 'dinner'
@@ -282,9 +283,9 @@ export function DietForm({ date }: Props) {
         {estimating ? 'AI 추정 중...' : 'AI로 칼로리 자동 채우기'}
       </button>
 
-      {MEALS.map(({ key, label, emoji, placeholder }) => (
+      {MEALS.map(({ key, label, icon: MealIcon, placeholder }) => (
         <div key={key} className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-3 space-y-2">
-          <p className="text-sm text-[hsl(var(--muted-foreground))]">{emoji} {label}</p>
+          <p className="text-sm text-[hsl(var(--muted-foreground))] flex items-center gap-1.5"><MealIcon size={14} strokeWidth={1.8} /> {label}</p>
 
           <div className="grid grid-cols-[1fr_120px] gap-2">
             <input

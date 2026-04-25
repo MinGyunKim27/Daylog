@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { Dumbbell, Heart, Moon, Utensils, Wallet } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { DietLog, ExerciseLog, Expense, MoodLog, SleepLog } from '@/types'
 import { formatKRW, getDietTotalCalories } from '@/lib/utils'
 
@@ -10,17 +12,22 @@ interface Props {
   todayDiet: DietLog | null
 }
 
-const MOOD_EMOJIS = ['😫', '😞', '🙁', '😕', '😐', '🙂', '😊', '😁', '🤩', '🥳']
+function moodScoreColor(score: number) {
+  if (score >= 9) return '#818CF8'
+  if (score >= 7) return '#34D399'
+  if (score >= 4) return '#FBBF24'
+  return '#F87171'
+}
 
 export function SummaryCards({ todayExpenses, todaySleep, todayExercise, todayMood, todayDiet }: Props) {
   const totalExpense = todayExpenses.reduce((sum, expense) => sum + expense.amount, 0)
   const totalExercise = todayExercise.reduce((sum, exercise) => sum + exercise.duration_minutes, 0)
   const totalDietCalories = getDietTotalCalories(todayDiet)
 
-  const cards = [
+  const cards: { href: string; icon: LucideIcon; label: string; color: string; value: string; sub: string; filled: boolean }[] = [
     {
       href: '/log?tab=expense',
-      emoji: '💸',
+      icon: Wallet,
       label: '오늘 지출',
       color: '#F87171',
       value: totalExpense > 0 ? formatKRW(totalExpense) : '미입력',
@@ -29,7 +36,7 @@ export function SummaryCards({ todayExpenses, todaySleep, todayExercise, todayMo
     },
     {
       href: '/log?tab=sleep',
-      emoji: '😴',
+      icon: Moon,
       label: '수면',
       color: '#818CF8',
       value: todaySleep ? `${todaySleep.duration_hours}시간` : '미입력',
@@ -38,7 +45,7 @@ export function SummaryCards({ todayExpenses, todaySleep, todayExercise, todayMo
     },
     {
       href: '/log?tab=exercise',
-      emoji: '💪',
+      icon: Dumbbell,
       label: '운동',
       color: '#34D399',
       value: totalExercise > 0 ? `${totalExercise}분` : '미입력',
@@ -47,16 +54,16 @@ export function SummaryCards({ todayExpenses, todaySleep, todayExercise, todayMo
     },
     {
       href: '/log?tab=mood',
-      emoji: '😊',
+      icon: Heart,
       label: '기분',
-      color: '#FBBF24',
-      value: todayMood ? `${MOOD_EMOJIS[todayMood.score - 1]} ${todayMood.score}점` : '미입력',
+      color: todayMood ? moodScoreColor(todayMood.score) : '#FBBF24',
+      value: todayMood ? `${todayMood.score}점` : '미입력',
       sub: todayMood?.note || (todayMood ? '메모 없음' : '기록 없음'),
       filled: !!todayMood,
     },
     {
       href: '/log?tab=diet',
-      emoji: '🍚',
+      icon: Utensils,
       label: '식단',
       color: '#FB923C',
       value: totalDietCalories > 0 ? `${totalDietCalories.toLocaleString('ko-KR')} kcal` : todayDiet ? '기록됨' : '미입력',
@@ -69,7 +76,7 @@ export function SummaryCards({ todayExpenses, todaySleep, todayExercise, todayMo
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-      {cards.map(({ href, emoji, label, value, sub, color, filled }) => (
+      {cards.map(({ href, icon: Icon, label, value, sub, color, filled }) => (
         <Link
           key={label}
           href={href}
@@ -83,7 +90,7 @@ export function SummaryCards({ todayExpenses, todaySleep, todayExercise, todayMo
           }}
         >
           <div className="flex items-center gap-1.5 mb-2">
-            <span className="text-base">{emoji}</span>
+            <Icon size={15} strokeWidth={1.8} style={{ color }} />
             <span className="text-xs text-[hsl(var(--muted-foreground))] font-medium">{label}</span>
           </div>
           <p className="text-sm font-bold leading-tight truncate">{value}</p>
